@@ -462,7 +462,6 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	reply.Term = rf.currentTerm
 	reply.Success = false
 	reply.CommitIndex  = 0
-	// fmt.Println("收到心跳")
 	// 收到rpc的term比自己的小 (§5.1)
 	if args.Term < rf.currentTerm {	// 并通知leader变为follower
 		return 
