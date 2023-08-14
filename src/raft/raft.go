@@ -699,3 +699,4 @@ func Make(peers []*labrpc.ClientEnd, me int,
 }
 
 
+测试
