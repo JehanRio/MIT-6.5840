@@ -1,4 +1,4 @@
-package main
+package main	// plugin包有一个约束：其包名必须为main
 
 //
 // a word-count application "plugin" for MapReduce.
@@ -18,10 +18,11 @@ import "strconv"
 // of key/value pairs.
 func Map(filename string, contents string) []mr.KeyValue {
 	// function to detect word separators.
-	ff := func(r rune) bool { return !unicode.IsLetter(r) }
+	// rune是一个基本数据类型，它代表了Unicode字符；string类型和rune类型之间可以互相转换
+	ff := func(r rune) bool { return !unicode.IsLetter(r) }		// 判断一个给定的rune是否不是一个字母字符
 
 	// split contents into an array of words.
-	words := strings.FieldsFunc(contents, ff)
+	words := strings.FieldsFunc(contents, ff)	// 第二个参数是分隔符函数，true则分隔
 
 	kva := []mr.KeyValue{}
 	for _, w := range words {
@@ -36,5 +37,5 @@ func Map(filename string, contents string) []mr.KeyValue {
 // any map task.
 func Reduce(key string, values []string) string {
 	// return the number of occurrences of this word.
-	return strconv.Itoa(len(values))
+	return strconv.Itoa(len(values))	// 将整数转换为对应的十进制字符串表示，这里多少个"1"，统计总数
 }

@@ -15,9 +15,9 @@ import "io/ioutil"
 import "sort"
 
 // for sorting by key.
-type ByKey []mr.KeyValue
+type ByKey []mr.KeyValue	// KeyValue是一个结构体：key, value string
 
-// for sorting by key.
+// for sorting by key.	sort.Sort必须实现的三个方法
 func (a ByKey) Len() int           { return len(a) }
 func (a ByKey) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByKey) Less(i, j int) bool { return a[i].Key < a[j].Key }
@@ -28,26 +28,26 @@ func main() {
 		os.Exit(1)
 	}
 
-	mapf, reducef := loadPlugin(os.Args[1])
+	mapf, reducef := loadPlugin(os.Args[1])	// 载入map和reduce函数
 
 	//
 	// read each input file,
 	// pass it to Map,
 	// accumulate the intermediate Map output.
 	//
-	intermediate := []mr.KeyValue{}
+	intermediate := []mr.KeyValue{}	// {}表示一个空的切片字面量
 	for _, filename := range os.Args[2:] {
 		file, err := os.Open(filename)
 		if err != nil {
-			log.Fatalf("cannot open %v", filename)
+			log.Fatalf("cannot open %v", filename)	// 打印到标准错误流，并以非零的退出状态终止程序
 		}
-		content, err := ioutil.ReadAll(file)
+		content, err := ioutil.ReadAll(file)	// content:[]uint8，需要用string转换
 		if err != nil {
 			log.Fatalf("cannot read %v", filename)
 		}
 		file.Close()
 		kva := mapf(filename, string(content))
-		intermediate = append(intermediate, kva...)
+		intermediate = append(intermediate, kva...)	// 将 kva 切片中的所有元素添加到 intermediate 切片的末尾，并将结果重新赋值给 intermediate
 	}
 
 	//
@@ -56,10 +56,10 @@ func main() {
 	// rather than being partitioned into NxM buckets.
 	//
 
-	sort.Sort(ByKey(intermediate))
+	sort.Sort(ByKey(intermediate))	// 根据Key排序，此时有许多重复的类似apple:1
 
 	oname := "mr-out-0"
-	ofile, _ := os.Create(oname)
+	ofile, _ := os.Create(oname)	// 创建文件，文件描述符
 
 	//
 	// call Reduce on each distinct key in intermediate[],
@@ -72,13 +72,13 @@ func main() {
 			j++
 		}
 		values := []string{}
-		for k := i; k < j; k++ {
+		for k := i; k < j; k++ {	// i和j之间是一样的键值对，将一样的到一个values中
 			values = append(values, intermediate[k].Value)
 		}
 		output := reducef(intermediate[i].Key, values)
 
 		// this is the correct format for each line of Reduce output.
-		fmt.Fprintf(ofile, "%v %v\n", intermediate[i].Key, output)
+		fmt.Fprintf(ofile, "%v %v\n", intermediate[i].Key, output)	// 写入文件，%v是格式化的字符串占位符
 
 		i = j
 	}
@@ -87,7 +87,7 @@ func main() {
 }
 
 // load the application Map and Reduce functions
-// from a plugin file, e.g. ../mrapps/wc.so
+// from a plugin file, e.g. ../mrapps/wc.so	从wc.so加载map函数和reduce函数
 func loadPlugin(filename string) (func(string, string) []mr.KeyValue, func(string, []string) string) {
 	p, err := plugin.Open(filename)
 	if err != nil {
@@ -97,7 +97,7 @@ func loadPlugin(filename string) (func(string, string) []mr.KeyValue, func(strin
 	if err != nil {
 		log.Fatalf("cannot find Map in %v", filename)
 	}
-	mapf := xmapf.(func(string, string) []mr.KeyValue)
+	mapf := xmapf.(func(string, string) []mr.KeyValue)	// 类型断言，确保一下类型
 	xreducef, err := p.Lookup("Reduce")
 	if err != nil {
 		log.Fatalf("cannot find Reduce in %v", filename)

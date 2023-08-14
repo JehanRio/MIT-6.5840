@@ -561,20 +561,23 @@ func (cfg *config) one(cmd interface{}, expectedServers int, retry bool) int {
 		for si := 0; si < cfg.n; si++ {
 			starts = (starts + 1) % cfg.n
 			var rf *Raft
+			// fmt.Println("测试1")
 			cfg.mu.Lock()
+			// fmt.Println("测试2")
 			if cfg.connected[starts] {
 				rf = cfg.rafts[starts]
 			}
 			cfg.mu.Unlock()
 			if rf != nil {
-				index1, _, ok := rf.Start(cmd)
+				index1, _, ok := rf.Start(cmd)	// 这个会返回写入日志的index
 				if ok {
+					// fmt.Println("测试3")
 					index = index1
 					break
 				}
 			}
 		}
-
+		
 		if index != -1 {
 			// somebody claimed to be the leader and to have
 			// submitted our command; wait a while for agreement.
@@ -583,13 +586,14 @@ func (cfg *config) one(cmd interface{}, expectedServers int, retry bool) int {
 				nd, cmd1 := cfg.nCommitted(index)
 				if nd > 0 && nd >= expectedServers {
 					// committed
-					if cmd1 == cmd {
+					if cmd1 == cmd {	// 查看start函数返回值index位置上的日志是否是cmd
 						// and it was the command we submitted.
 						return index
 					}
 				}
 				time.Sleep(20 * time.Millisecond)
 			}
+			// fmt.Println("测试4")
 			if retry == false {
 				cfg.t.Fatalf("one(%v) failed to reach agreement", cmd)
 			}

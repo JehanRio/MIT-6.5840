@@ -689,9 +689,9 @@ func TestPersist12C(t *testing.T) {
 		cfg.disconnect(i)
 		cfg.connect(i)
 	}
-
+	
 	cfg.one(12, servers, true)
-
+	
 	leader1 := cfg.checkOneLeader()
 	cfg.disconnect(leader1)
 	cfg.start1(leader1, cfg.applier)
@@ -706,7 +706,7 @@ func TestPersist12C(t *testing.T) {
 	cfg.connect(leader2)
 
 	cfg.wait(4, servers, -1) // wait for leader2 to join before killing i3
-
+	
 	i3 := (cfg.checkOneLeader() + 1) % servers
 	cfg.disconnect(i3)
 	cfg.one(15, servers-1, true)
@@ -714,7 +714,7 @@ func TestPersist12C(t *testing.T) {
 	cfg.connect(i3)
 
 	cfg.one(16, servers, true)
-
+	
 	cfg.end()
 }
 
@@ -863,7 +863,7 @@ func TestUnreliableAgree2C(t *testing.T) {
 	cfg := make_config(t, servers, true, false)
 	defer cfg.cleanup()
 
-	cfg.begin("Test (2C): unreliable agreement")
+	cfg.begin("Test (2C): unreliable agreement")	//出问题
 
 	var wg sync.WaitGroup
 
@@ -892,7 +892,7 @@ func TestFigure8Unreliable2C(t *testing.T) {
 	cfg := make_config(t, servers, true, false)
 	defer cfg.cleanup()
 
-	cfg.begin("Test (2C): Figure 8 (unreliable)")
+	cfg.begin("Test (2C): Figure 8 (unreliable)")	// 出问题
 
 	cfg.one(rand.Int()%10000, 1, true)
 
@@ -1107,7 +1107,7 @@ func snapcommon(t *testing.T, name string, disconnect bool, reliable bool, crash
 
 	cfg.one(rand.Int(), servers, true)
 	leader1 := cfg.checkOneLeader()
-
+	
 	for i := 0; i < iters; i++ {
 		victim := (leader1 + 1) % servers
 		sender := leader1
@@ -1115,7 +1115,6 @@ func snapcommon(t *testing.T, name string, disconnect bool, reliable bool, crash
 			sender = (leader1 + 1) % servers
 			victim = leader1
 		}
-
 		if disconnect {
 			cfg.disconnect(victim)
 			cfg.one(rand.Int(), servers-1, true)
@@ -1124,7 +1123,6 @@ func snapcommon(t *testing.T, name string, disconnect bool, reliable bool, crash
 			cfg.crash1(victim)
 			cfg.one(rand.Int(), servers-1, true)
 		}
-
 		// perhaps send enough to get a snapshot
 		nn := (SnapShotInterval / 2) + (rand.Int() % SnapShotInterval)
 		for i := 0; i < nn; i++ {
@@ -1136,10 +1134,12 @@ func snapcommon(t *testing.T, name string, disconnect bool, reliable bool, crash
 			// make sure all followers have caught up, so that
 			// an InstallSnapshot RPC isn't required for
 			// TestSnapshotBasic2D().
+			// fmt.Println("卡住")
 			cfg.one(rand.Int(), servers, true)
 		} else {
 			cfg.one(rand.Int(), servers-1, true)
 		}
+		// ↑
 
 		if cfg.LogSize() >= MAXLOGSIZE {
 			cfg.t.Fatalf("Log size too large")
@@ -1151,6 +1151,7 @@ func snapcommon(t *testing.T, name string, disconnect bool, reliable bool, crash
 			cfg.one(rand.Int(), servers, true)
 			leader1 = cfg.checkOneLeader()
 		}
+		
 		if crash {
 			cfg.start1(victim, cfg.applierSnap)
 			cfg.connect(victim)
@@ -1158,6 +1159,7 @@ func snapcommon(t *testing.T, name string, disconnect bool, reliable bool, crash
 			leader1 = cfg.checkOneLeader()
 		}
 	}
+	
 	cfg.end()
 }
 

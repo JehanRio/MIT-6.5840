@@ -9,7 +9,10 @@ package raft
 // test with the original before submitting.
 //
 
-import "sync"
+import (
+	// "fmt"
+	"sync"
+)
 
 type Persister struct {
 	mu        sync.Mutex
