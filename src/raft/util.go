@@ -21,12 +21,8 @@ func (rf *Raft) getLastIndex() int {
 }
 
 func (rf *Raft) getLastTerm() int {
-	// 因为初始有填充一个，否则最直接len == 0
-	if len(rf.log)-1 == 0 {
-		return rf.lastIncludedTerm
-	} else {
-		return rf.log[len(rf.log)-1].Term
-	}
+	return rf.log[len(rf.log)-1].Term
+	
 }
 
 // 通过快照偏移还原真实日志条目
@@ -37,9 +33,9 @@ func (rf *Raft) restoreLog(curIndex int) logEntry {
 // 通过快照偏移还原真实日志任期
 func (rf *Raft) restoreLogTerm(curIndex int) int {
 	// 如果当前index与快照一致/日志为空，直接返回快照/快照初始化信息，否则根据快照计算
-	if curIndex-rf.lastIncludedIndex == 0 {
-		return rf.lastIncludedTerm
-	}
+	// if curIndex-rf.lastIncludedIndex == 0 {
+	// 	return rf.lastIncludedTerm
+	// }
 	// fmt.Printf("[GET] curIndex:%v,rf.lastIncludeIndex:%v\n", curIndex, rf.lastIncludedIndex)
 	return rf.log[curIndex-rf.lastIncludedIndex].Term
 }

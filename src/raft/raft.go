@@ -303,7 +303,6 @@ func (rf *Raft) LogTerm(index int) int {
 }
 
 func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
-	
 	rf.mu.Lock()	// 死锁了
 	defer rf.mu.Unlock()
 	
@@ -355,6 +354,7 @@ func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *Reques
 			// fmt.Println("新王登基，他的ID是:" ,rf.me)
 			rf.voteCount = 1
 			rf.state = Leader
+			// fmt.Println("leader是:", rf.me)
 			for i, _ := range rf.nextIndex {
 				rf.nextIndex[i] = len(rf.log) 	// 初始化为leader的最后一个日志的下一个条目
 				// fmt.Println("rf.nextIndex[i]:",rf.nextIndex[i])
@@ -517,6 +517,8 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	rf.timer.reset()	
 }
 
+
+
 func (rf *Raft) convert2Follower(term int) {
 	rf.currentTerm = term
 	rf.state = Follower
@@ -551,7 +553,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	e := logEntry{command, rf.currentTerm}
 	rf.log = append(rf.log, e)
 
-	index = len(rf.log)
+	index = rf.getLastIndex()+1
 	term = rf.currentTerm
 	rf.persist()
 	// fmt.Printf("lastapplied:%d, index:%d\n", rf.lastApplied, rf.commitIndex)
@@ -582,12 +584,10 @@ func (rf *Raft) ticker() {
 	for rf.killed() == false {
 		select {
 		case <-rf.timer.timer.C:
-			// fmt.Println("select!!!")
 			rf.mu.Lock()
 			switch rf.state {
 			case Follower: 	// follower->candidate
 				rf.state = Candidate
-				// fmt.Println(rf.me, "进入candidate状态")
 				fallthrough
 			case Candidate:	// 成为候选人，开始拉票
 				rf.currentTerm++
@@ -602,10 +602,11 @@ func (rf *Raft) ticker() {
 					}
 					args := RequestVoteArgs{Term: rf.currentTerm, CandidateId: rf.me, LastLogIndex:  rf.getLastIndex()}
 					if len(rf.log) > 0 {
-						args.LastLogTerm = rf.log[len(rf.log)-1].Term
+						args.LastLogTerm = rf.getLastTerm()
 					}
+
 					reply := RequestVoteReply{}
-					fmt.Println("发送选举,选举人是:",rf.me, "follower是:", i, "票数为：", rf.voteCount)
+					// fmt.Println("发送选举,选举人是:",rf.me, "follower是:", i, "票数为：", rf.voteCount)
 					go rf.sendRequestVote(i, &args, &reply)
 				}
 			case Leader:
@@ -614,7 +615,7 @@ func (rf *Raft) ticker() {
 					if i == rf.me {
 						continue
 					}
-					
+		
 					// installSnapshot，如果rf.nextIndex[i]-1小于等lastIncludeIndex,说明followers的日志小于自身的快照状态，将自己的快照发过去
 					// 同时要注意的是比快照还小时，已经算是比较落后
 					// fmt.Printf("lastIncludedIndex:%d, nextIndex[i]:%d\n", rf.lastIncludedIndex, rf.nextIndex[i])
@@ -635,12 +636,12 @@ func (rf *Raft) ticker() {
 					// fmt.Println("prevLogIndex:", prevLogIndex, " prevLogTerm:", prevLogTerm)
 					args := AppendEntriesArgs{Term: rf.currentTerm, LeaderId: rf.me, PrevLogIndex: prevLogIndex,
 						PrevLogTerm: prevLogTerm, Entries: nil, LeaderCommit: rf.commitIndex}
-
 					if rf.nextIndex[i] - rf.lastIncludedIndex < len(rf.log) {		// 刚成为leader的时候更新过 所以第一次entry为空
 						entries := rf.log[rf.nextIndex[i]-rf.lastIncludedIndex:]			//如果日志小于leader的日志的话直接拷贝日志
 						args.Entries = make([]logEntry, len(entries))
 						copy(args.Entries, entries)
 					}
+
 					// fmt.Println("写入的主机是:", i,"len(rf.log):", len(rf.log), "PrevLogIndex:", args.PrevLogIndex, "rf.nextIndex[i]:", rf.nextIndex[i], "rf.currentTerm:", rf.currentTerm, "rf.commitIndex:", rf.commitIndex)
 					reply := AppendEntriesReply{}
 					go rf.sendAppendEntries(i, &args, &reply)
@@ -652,6 +653,7 @@ func (rf *Raft) ticker() {
 		}
 	}
 }
+
 
 // the service or tester wants to create a Raft server. the ports
 // of all the Raft servers (including this one) are in peers[]. this
@@ -699,4 +701,3 @@ func Make(peers []*labrpc.ClientEnd, me int,
 }
 
 
-测试
