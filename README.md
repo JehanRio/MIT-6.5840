@@ -8,9 +8,9 @@ my implement for Lab of [MIT 6.5840](https://pdos.csail.mit.edu/6.824/)
 ## todo Lab
 - [X] Lab1(All test passed)
 - [X] Lab2
-    - [ X] Lab2A(All test passed)
-    - [ X] Lab2B(All test passed)
-    - [ X] Lab2C(All test passed)
-    - [ X] Lab2D(All test passed, instable)
+    - [X] Lab2A(All test passed)
+    - [X] Lab2B(All test passed)
+    - [X] Lab2C(All test passed)
+    - [X] Lab2D(All test passed, instable)
 - [ ] Lab3
 - [ ] Lab4
