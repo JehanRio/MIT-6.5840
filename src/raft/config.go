@@ -251,6 +251,7 @@ func (cfg *config) applierSnap(i int, applyCh chan ApplyMsg) {
 					xlog = append(xlog, cfg.logs[i][j])
 				}
 				e.Encode(xlog)
+				// fmt.Println("测试！！！！")
 				rf.Snapshot(m.CommandIndex, w.Bytes())
 			}
 		} else {
@@ -588,6 +589,7 @@ func (cfg *config) one(cmd interface{}, expectedServers int, retry bool) int {
 					// committed
 					if cmd1 == cmd {	// 查看start函数返回值index位置上的日志是否是cmd
 						// and it was the command we submitted.
+						// fmt.Println("it was the command we submitted")
 						return index
 					}
 				}
