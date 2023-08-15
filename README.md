@@ -3,7 +3,7 @@
 
 # lab for MIT 6.5840
 
-my implement for Lab of [MIT 6.5840](https://pdos.csail.mit.edu/6.824/)
+[6.5840 Schedule: Spring 2023](https://pdos.csail.mit.edu/6.824/schedule.html)
 
 ## todo Lab
 - [X] Lab1(All test passed)：[https://blog.csdn.net/weixin_51322383/article/details/132068745](https://blog.csdn.net/weixin_51322383/article/details/132068745)
@@ -14,3 +14,6 @@ my implement for Lab of [MIT 6.5840](https://pdos.csail.mit.edu/6.824/)
     - [X] Lab2D(All test passed, instable)：[https://blog.csdn.net/weixin_51322383/article/details/132253049](https://blog.csdn.net/weixin_51322383/article/details/132253049)
 - [ ] Lab3
 - [ ] Lab4
+## Reference
+[The Raft Consensus Algorithm](https://raft.github.io/)
+[MIT6.824网课学习笔记](https://ashiamd.github.io/docsify-notes/#/study/%E5%88%86%E5%B8%83%E5%BC%8F%E7%AD%96%E7%95%A5/MIT6.824%E7%BD%91%E8%AF%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-01)
