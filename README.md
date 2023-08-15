@@ -16,4 +16,5 @@
 - [ ] Lab4
 ## Reference
 [The Raft Consensus Algorithm](https://raft.github.io/)
+
 [MIT6.824网课学习笔记](https://ashiamd.github.io/docsify-notes/#/study/%E5%88%86%E5%B8%83%E5%BC%8F%E7%AD%96%E7%95%A5/MIT6.824%E7%BD%91%E8%AF%BE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-01)
